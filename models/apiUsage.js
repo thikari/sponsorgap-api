@@ -91,7 +91,7 @@ apiUsageSchema.statics.getUsageStats = function(userId, timeframe = '24h') {
   return this.aggregate([
     {
       $match: {
-        userId: mongoose.Types.ObjectId(userId),
+        userId: new mongoose.Types.ObjectId(userId),
         timestamp: { $gte: startTime }
       }
     },
