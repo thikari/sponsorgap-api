@@ -1,0 +1,96 @@
+require('dotenv').config();
+
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const mongoose = require('mongoose');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Security middleware
+app.use(helmet({
+  crossOriginEmbedderPolicy: false
+}));
+
+// Enable CORS
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key'],
+}));
+
+// Parse JSON bodies
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Connect to MongoDB
+mongoose.connect(process.env.DATABASE || 'mongodb://localhost/sponsors', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+db.once('open', () => {
+  console.log('✅ Connected to MongoDB');
+});
+
+// Import API routes and middleware
+const { router: firehoseRouter } = require('./firehose');
+const { authenticateApiKey } = require('./apiAuth');
+
+// API Info endpoint
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    service: 'SponsorGap Enterprise API',
+    version: '1.0.0',
+    endpoints: {
+      stats: 'GET /v1/stats - API usage statistics and limits',
+      historical: 'GET /v1/historical - Historical sponsor data with filtering',
+      stream: 'GET /v1/stream - Real-time sponsor data stream'
+    },
+    authentication: 'API Key required in X-API-Key header',
+    documentation: 'https://docs.sponsorgap.com/api',
+    support: 'api@sponsorgap.com'
+  });
+});
+
+// Health check
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  });
+});
+
+// Mount API routes at /v1
+app.use('/v1', firehoseRouter);
+
+// 404 handler for API
+app.use('*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    error: 'Endpoint not found',
+    message: 'Available endpoints: /v1/stats, /v1/historical, /v1/stream',
+    path: req.originalUrl
+  });
+});
+
+// Error handler
+app.use((error, req, res, next) => {
+  console.error('API Error:', error);
+  res.status(500).json({
+    success: false,
+    error: 'Internal server error',
+    message: 'Something went wrong processing your request'
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`🚀 SponsorGap API Server running on port ${PORT}`);
+  console.log(`📡 API endpoints available at: /v1/stats, /v1/historical, /v1/stream`);
+});
