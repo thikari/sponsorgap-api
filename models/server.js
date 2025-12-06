@@ -36,8 +36,9 @@ db.once('open', () => {
   console.log('✅ Connected to MongoDB');
 });
 
-// Import API routes
+// Import API routes and middleware
 const { router: firehoseRouter } = require('./firehose');
+const { authenticateApiKey } = require('./apiAuth');
 
 // API Info endpoint
 app.get('/', (req, res) => {
