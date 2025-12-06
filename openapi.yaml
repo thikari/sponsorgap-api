@@ -1,0 +1,513 @@
+openapi: 3.0.3
+info:
+  title: SponsorGap Enterprise API
+  description: |
+    Real-time and historical access to sponsor data for enterprise users.
+    
+    ## Authentication
+    All API endpoints require an enterprise API key provided in the `X-API-Key` header.
+    
+    ## Rate Limits
+    - 1,000 requests per hour
+    - 5 concurrent connections for streaming
+    
+  version: 1.0.0
+  contact:
+    name: SponsorGap API Support
+    email: api@sponsorgap.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.sponsorgap.com
+    description: Production API Server
+
+security:
+  - ApiKeyAuth: []
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Enterprise API key required for authentication
+
+  schemas:
+    ServiceInfo:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        service:
+          type: string
+          example: "SponsorGap Enterprise API"
+        version:
+          type: string
+          example: "1.0.0"
+        endpoints:
+          type: object
+          properties:
+            stats:
+              type: string
+              example: "GET /v1/stats - API usage statistics and limits"
+            historical:
+              type: string
+              example: "GET /v1/historical - Historical sponsor data with filtering"
+            stream:
+              type: string
+              example: "GET /v1/stream - Real-time sponsor data stream"
+        authentication:
+          type: string
+          example: "API Key required in X-API-Key header"
+        documentation:
+          type: string
+          example: "https://docs.sponsorgap.com/api"
+        support:
+          type: string
+          example: "api@sponsorgap.com"
+
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "healthy"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-12-06T20:00:00.000Z"
+        uptime:
+          type: number
+          example: 3600
+        mongodb:
+          type: string
+          example: "connected"
+
+    Sponsor:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "507f1f77bcf86cd799439011"
+        name:
+          type: string
+          example: "TechCorp Inc"
+        logo:
+          type: string
+          example: "https://example.com/logo.png"
+        website:
+          type: string
+          example: "https://techcorp.com"
+        industry:
+          type: string
+          example: "Technology"
+        category:
+          type: string
+          example: "Software"
+        audience:
+          type: integer
+          example: 50000
+        ad_type:
+          type: string
+          example: "Newsletter Sponsorship"
+        sponsor_of:
+          type: string
+          example: "TechNewsletter Weekly"
+        description:
+          type: string
+          example: "Leading software company specializing in developer tools"
+        created:
+          type: string
+          format: date-time
+          example: "2025-12-06T19:00:00.000Z"
+        last_seen:
+          type: string
+          format: date-time
+          example: "2025-12-06T20:00:00.000Z"
+
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 1250
+        limit:
+          type: integer
+          example: 100
+        offset:
+          type: integer
+          example: 0
+        hasNext:
+          type: boolean
+          example: true
+
+    HistoricalResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sponsor'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        meta:
+          type: object
+          properties:
+            requestId:
+              type: string
+              example: "req_123456789"
+            timestamp:
+              type: string
+              format: date-time
+              example: "2025-12-06T20:00:00.000Z"
+            processing_time:
+              type: string
+              example: "45ms"
+
+    StatsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            sponsor_stats:
+              type: object
+              properties:
+                new_sponsors:
+                  type: integer
+                  example: 30
+                total_sponsors:
+                  type: integer
+                  example: 18946
+                top_categories:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                        example: "Technology"
+                      count:
+                        type: integer
+                        example: 4063
+                timeframe:
+                  type: string
+                  example: "24h"
+            usage_stats:
+              type: array
+              items:
+                type: object
+            user_limits:
+              type: object
+              properties:
+                rate_limit:
+                  type: integer
+                  example: 1000
+                connection_limit:
+                  type: integer
+                  example: 5
+                current_connections:
+                  type: integer
+                  example: 0
+        meta:
+          type: object
+          properties:
+            timestamp:
+              type: string
+              format: date-time
+
+    StreamEvent:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "msg_001"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-12-06T20:00:00.000Z"
+        type:
+          type: string
+          enum: [connection, heartbeat, sponsor_update]
+          example: "sponsor_update"
+        data:
+          type: object
+          oneOf:
+            - type: object
+              properties:
+                status:
+                  type: string
+                  example: "connected"
+                filters:
+                  type: object
+                message:
+                  type: string
+                  example: "Firehose stream connected successfully"
+            - type: object
+              properties:
+                active_connections:
+                  type: integer
+                  example: 1
+            - type: object
+              properties:
+                action:
+                  type: string
+                  enum: [created, updated, deleted]
+                  example: "created"
+                sponsor:
+                  $ref: '#/components/schemas/Sponsor'
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "API key required"
+        message:
+          type: string
+          example: "Please provide an API key in the X-API-Key header"
+
+paths:
+  /:
+    get:
+      summary: Get API Service Information
+      description: Returns basic API service information and available endpoints
+      security: []
+      responses:
+        '200':
+          description: API service information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceInfo'
+
+  /health:
+    get:
+      summary: Health Check
+      description: Returns API server health status
+      security: []
+      responses:
+        '200':
+          description: Server health status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+  /v1/stats:
+    get:
+      summary: Get Usage Statistics
+      description: Returns API usage statistics and sponsor data insights
+      parameters:
+        - name: timeframe
+          in: query
+          description: Time period for statistics
+          required: false
+          schema:
+            type: string
+            enum: ['1h', '24h', '7d']
+            default: '24h'
+            example: '24h'
+      responses:
+        '200':
+          description: Usage statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Insufficient privileges
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/historical:
+    get:
+      summary: Get Historical Sponsor Data
+      description: Retrieve historical sponsor data with filtering and pagination
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of results per page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+            example: 10
+        - name: offset
+          in: query
+          description: Pagination offset
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+        - name: since
+          in: query
+          description: Start date for filtering (ISO 8601 format)
+          required: false
+          schema:
+            type: string
+            format: date-time
+            example: "2025-12-05T00:00:00Z"
+        - name: category
+          in: query
+          description: Filter by sponsor category
+          required: false
+          schema:
+            type: string
+            example: "Technology"
+        - name: industry
+          in: query
+          description: Filter by industry field
+          required: false
+          schema:
+            type: string
+            example: "Software"
+        - name: audience_min
+          in: query
+          description: Minimum audience size
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            example: 10000
+        - name: audience_max
+          in: query
+          description: Maximum audience size
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            example: 100000
+      responses:
+        '200':
+          description: Historical sponsor data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoricalResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/stream:
+    get:
+      summary: Real-time Sponsor Stream
+      description: |
+        Establish a real-time Server-Sent Events connection for sponsor updates.
+        
+        **Event Types:**
+        - `connection` - Stream connection established
+        - `heartbeat` - Periodic keep-alive (every 30 seconds)  
+        - `sponsor_update` - New sponsor data (actions: created, updated, deleted)
+        
+        **Connection Limits:**
+        - Maximum 5 concurrent connections per API key
+        - 10 minutes timeout on inactive connections
+      parameters:
+        - name: category
+          in: query
+          description: Filter by sponsor category
+          required: false
+          schema:
+            type: string
+            example: "Technology"
+        - name: industry
+          in: query
+          description: Filter by industry field
+          required: false
+          schema:
+            type: string
+            example: "Software"
+        - name: audience_min
+          in: query
+          description: Minimum audience size
+          required: false
+          schema:
+            type: integer
+            example: 10000
+        - name: audience_max
+          in: query
+          description: Maximum audience size
+          required: false
+          schema:
+            type: integer
+            example: 100000
+        - name: since
+          in: query
+          description: Only include sponsors created after this date
+          required: false
+          schema:
+            type: string
+            format: date-time
+            example: "2025-12-05T00:00:00Z"
+      responses:
+        '200':
+          description: Server-Sent Events stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: |
+                  Server-Sent Events format:
+                  ```
+                  data: {"id":"msg_001","timestamp":"2025-12-06T20:00:00.000Z","type":"connection","data":{...}}
+                  
+                  data: {"id":"msg_002","timestamp":"2025-12-06T20:00:30.000Z","type":"heartbeat","data":{...}}
+                  
+                  data: {"id":"msg_003","timestamp":"2025-12-06T20:01:00.000Z","type":"sponsor_update","data":{...}}
+                  ```
+              examples:
+                connection_event:
+                  summary: Connection established
+                  value: 'data: {"id":"msg_001","timestamp":"2025-12-06T20:00:00.000Z","type":"connection","data":{"status":"connected","filters":{"category":"Technology"},"message":"Firehose stream connected successfully"}}'
+                heartbeat_event:
+                  summary: Heartbeat event
+                  value: 'data: {"id":"msg_002","timestamp":"2025-12-06T20:00:30.000Z","type":"heartbeat","data":{"active_connections":1}}'
+                sponsor_update_event:
+                  summary: Sponsor update
+                  value: 'data: {"id":"msg_003","timestamp":"2025-12-06T20:01:00.000Z","type":"sponsor_update","data":{"action":"created","sponsor":{"id":"507f1f77bcf86cd799439011","name":"TechCorp Inc","industry":"Technology"}}}'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Connection limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
