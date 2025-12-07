@@ -38,6 +38,7 @@ db.once('open', () => {
 
 // Import API routes and middleware
 const { router: firehoseRouter } = require('./firehose');
+const additionalEndpoints = require('./additional-endpoints');
 const { authenticateApiKey } = require('./apiAuth');
 
 // API Info endpoint
@@ -49,7 +50,11 @@ app.get('/', (req, res) => {
     endpoints: {
       stats: 'GET /v1/stats - API usage statistics and limits',
       historical: 'GET /v1/historical - Historical sponsor data with filtering',
-      stream: 'GET /v1/stream - Real-time sponsor data stream'
+      stream: 'GET /v1/stream - Real-time sponsor data stream',
+      industries: 'GET /v1/industries - List all industries',
+      brands: 'GET /v1/brands/search - Search brands by name',
+      trending: 'GET /v1/sponsors/trending - Trending sponsors',
+      analytics: 'GET /v1/analytics/market-overview - Market insights'
     },
     authentication: 'API Key required in X-API-Key header',
     documentation: 'https://docs.sponsorgap.com/api',
@@ -69,13 +74,14 @@ app.get('/health', (req, res) => {
 
 // Mount API routes at /v1
 app.use('/v1', firehoseRouter);
+app.use('/v1', additionalEndpoints);
 
 // 404 handler for API
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
     error: 'Endpoint not found',
-    message: 'Available endpoints: /v1/stats, /v1/historical, /v1/stream',
+    message: 'Available endpoints: /v1/stats, /v1/historical, /v1/stream, /v1/industries, /v1/brands/search, /v1/sponsors/trending, /v1/analytics/market-overview',
     path: req.originalUrl
   });
 });
@@ -92,5 +98,5 @@ app.use((error, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`🚀 SponsorGap API Server running on port ${PORT}`);
-  console.log(`📡 API endpoints available at: /v1/stats, /v1/historical, /v1/stream`);
+  console.log(`📡 API endpoints available at: /v1/stats, /v1/historical, /v1/stream, /v1/industries, /v1/brands/search, /v1/sponsors/trending`);
 });
