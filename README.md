@@ -26,28 +26,116 @@ curl -H "X-API-Key: your_enterprise_api_key" https://api.sponsorgap.com/v1/stats
 
 ## 📊 Available Endpoints
 
-### Core Data Endpoints
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/` | GET | API service information |
-| `/health` | GET | Health check |
-| `/v1/stats` | GET | Usage statistics and sponsor insights |
-| `/v1/historical` | GET | Historical sponsor data with filtering |
-| `/v1/stream` | GET | Real-time sponsor updates (SSE) |
+### 🏠 Service & Health
+| Endpoint | Method | Description | Status |
+|----------|--------|-------------|--------|
+| `/` | GET | API service information and endpoint list | ✅ Live |
+| `/health` | GET | Server health and MongoDB connection status | ✅ Live |
 
-### Industry & Discovery Endpoints  
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/v1/industries` | GET | List all available industries with sponsor counts |
-| `/v1/industries/{industry}/sponsors` | GET | Get sponsors by specific industry |
-| `/v1/brands/search` | GET | Search brands by name with fuzzy matching |
-| `/v1/sponsors/trending` | GET | Get trending sponsors (most active recently) |
+### 📈 Core Data Access
+| Endpoint | Method | Description | Status |
+|----------|--------|-------------|--------|
+| `/v1/stats` | GET | API usage statistics and sponsor data insights | ✅ Live |
+| `/v1/historical` | GET | Historical sponsor data with advanced filtering | ✅ Live |
+| `/v1/stream` | GET | Real-time sponsor updates via Server-Sent Events | ✅ Live |
 
-### Analytics & Insights Endpoints
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/v1/analytics/market-overview` | GET | Comprehensive market analysis and trends |
-| `/v1/audience/ranges` | GET | Sponsor distribution by audience size ranges |
+### 🏭 Industry & Category Discovery
+| Endpoint | Method | Description | Status |
+|----------|--------|-------------|--------|
+| `/v1/industries` | GET | List all available industries with sponsor counts | ✅ Live |
+| `/v1/industries/{industry}/sponsors` | GET | Get sponsors by specific industry with filtering | ✅ Live |
+| `/v1/categories` | GET | List all sponsor categories | 🔧 Planned |
+| `/v1/categories/{category}/sponsors` | GET | Get sponsors by category | 🔧 Planned |
+| `/v1/industries/{industry}/stats` | GET | Industry-specific statistics and trends | 🔧 Planned |
+
+### 🏢 Brand & Company Intelligence
+| Endpoint | Method | Description | Status |
+|----------|--------|-------------|--------|
+| `/v1/brands/search` | GET | Search brands by name with fuzzy matching | ✅ Live |
+| `/v1/brands` | GET | Advanced brand search with multiple filters | 🔧 Planned |
+| `/v1/brands/{brandId}` | GET | Get detailed brand information and history | 🔧 Planned |
+| `/v1/brands/{brandId}/history` | GET | Brand's complete sponsorship history | 🔧 Planned |
+| `/v1/brands/{brandId}/competitors` | GET | Find similar/competing brands | 🔧 Planned |
+| `/v1/brands/trending` | GET | Most active brands in recent time period | 🔧 Planned |
+| `/v1/brands/new` | GET | Recently discovered brand sponsors | 🔧 Planned |
+
+### 🎯 Audience & Targeting
+| Endpoint | Method | Description | Status |
+|----------|--------|-------------|--------|
+| `/v1/audience/ranges` | GET | Sponsor distribution by audience size ranges | ✅ Live |
+| `/v1/sponsors/audience/{min}/{max}` | GET | Find sponsors by audience size range | 🔧 Planned |
+| `/v1/audience/demographics` | GET | Detailed audience demographic data | 🔧 Planned |
+| `/v1/targeting/recommendations` | GET | AI-powered targeting suggestions | 🔧 Planned |
+
+### 📊 Analytics & Market Insights
+| Endpoint | Method | Description | Status |
+|----------|--------|-------------|--------|
+| `/v1/analytics/market-overview` | GET | Comprehensive market analysis and trends | ✅ Live |
+| `/v1/sponsors/trending` | GET | Trending sponsors (most active recently) | ✅ Live |
+| `/v1/analytics/industry/{industry}` | GET | Deep industry analysis and benchmarks | 🔧 Planned |
+| `/v1/analytics/competition` | GET | Competitive landscape analysis | 🔧 Planned |
+| `/v1/analytics/gaps` | GET | Market gap analysis and opportunities | 🔧 Planned |
+| `/v1/insights/predictions` | GET | AI predictions for sponsor trends | 🔧 Planned |
+
+### 💰 Pricing & Ad Spend Intelligence
+| Endpoint | Method | Description | Status |
+|----------|--------|-------------|--------|
+| `/v1/spending/ranges` | GET | Ad spend categories and ranges | 🔧 Planned |
+| `/v1/sponsors/spending/{min}/{max}` | GET | Find sponsors by ad spend range | 🔧 Planned |
+| `/v1/pricing/trends` | GET | Sponsorship pricing trends over time | 🔧 Planned |
+| `/v1/pricing/benchmarks` | GET | Industry pricing benchmarks | 🔧 Planned |
+
+### 🔍 Advanced Search & Discovery
+| Endpoint | Method | Description | Status |
+|----------|--------|-------------|--------|
+| `/v1/search/sponsors` | GET | Advanced multi-field sponsor search | 🔧 Planned |
+| `/v1/search/newsletters` | GET | Search newsletters and publications | 🔧 Planned |
+| `/v1/discover/opportunities` | GET | AI-powered opportunity discovery | 🔧 Planned |
+| `/v1/similar/{sponsorId}` | GET | Find sponsors similar to a given sponsor | 🔧 Planned |
+
+### 📅 Time-Based & Live Data
+| Endpoint | Method | Description | Status |
+|----------|--------|-------------|--------|
+| `/v1/sponsors/recent` | GET | Recently active sponsors | 🔧 Planned |
+| `/v1/campaigns/active` | GET | Currently running sponsorship campaigns | 🔧 Planned |
+| `/v1/campaigns/upcoming` | GET | Upcoming campaign opportunities | 🔧 Planned |
+| `/v1/historical/timeline` | GET | Sponsor activity timeline analysis | 🔧 Planned |
+| `/v1/live/activity` | GET | Live sponsor activity feed | 🔧 Planned |
+| `/v1/live/new-opportunities` | GET | Real-time new opportunities | 🔧 Planned |
+
+### 📝 Publications & Content Analysis
+| Endpoint | Method | Description | Status |
+|----------|--------|-------------|--------|
+| `/v1/publications` | GET | List of newsletters and publications | 🔧 Planned |
+| `/v1/publications/{pubId}/sponsors` | GET | Sponsors of a specific publication | 🔧 Planned |
+| `/v1/publications/metrics` | GET | Publication performance metrics | 🔧 Planned |
+| `/v1/ad-placements/types` | GET | Types of ad placements available | 🔧 Planned |
+
+### 🎯 Matching & Recommendations
+| Endpoint | Method | Description | Status |
+|----------|--------|-------------|--------|
+| `/v1/match/brands-to-audience` | GET | Match brands to your target audience | 🔧 Planned |
+| `/v1/recommendations/sponsors` | GET | Personalized sponsor recommendations | 🔧 Planned |
+| `/v1/compatibility/{brandId}` | GET | Brand compatibility score analysis | 🔧 Planned |
+| `/v1/outreach/suggestions` | GET | Outreach strategy suggestions | 🔧 Planned |
+
+### 📋 Data Management & Export
+| Endpoint | Method | Description | Status |
+|----------|--------|-------------|--------|
+| `/v1/export/csv` | GET | Export sponsor data as CSV | 🔧 Planned |
+| `/v1/export/json` | GET | Export sponsor data as JSON | 🔧 Planned |
+| `/v1/reports/generate` | POST | Generate custom reports | 🔧 Planned |
+
+### 🔔 Alerts & Notifications
+| Endpoint | Method | Description | Status |
+|----------|--------|-------------|--------|
+| `/v1/alerts/setup` | POST | Set up custom sponsor alerts | 🔧 Planned |
+| `/v1/alerts/triggered` | GET | Recently triggered alerts | 🔧 Planned |
+| `WebSocket /v1/ws/live-feed` | WS | WebSocket live sponsor updates | 🔧 Planned |
+
+**Legend:**
+- ✅ **Live:** Currently available and operational
+- 🔧 **Planned:** Designed and ready for implementation
 
 ## 🔥 Quick Start
 
