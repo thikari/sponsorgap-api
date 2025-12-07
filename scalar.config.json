@@ -1,0 +1,37 @@
+{
+  "spec": {
+    "url": "./openapi.yaml"
+  },
+  "theme": "purple",
+  "layout": "modern",
+  "metadata": {
+    "title": "SponsorGap Enterprise API",
+    "description": "Real-time sponsor data API for enterprise users",
+    "termsOfService": "https://sponsorgap.com/terms",
+    "contact": {
+      "name": "API Support", 
+      "email": "api@sponsorgap.com",
+      "url": "https://sponsorgap.com/support"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "customCss": ".scalar-card { border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }",
+  "authentication": {
+    "preferredSecurityScheme": "ApiKeyAuth",
+    "apiKey": {
+      "token": "your_enterprise_api_key_here"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.sponsorgap.com",
+      "description": "Production API Server"
+    }
+  ],
+  "hiddenClients": [],
+  "defaultOpenAllTags": true,
+  "searchHotKey": "k"
+}
