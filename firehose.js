@@ -99,6 +99,7 @@ router.get('/historical', checkRateLimit, async (req, res) => {
     const limit = Math.min(parseInt(req.query.limit) || 100, 1000);
     const offset = parseInt(req.query.offset) || 0;
     const since = req.query.since ? new Date(req.query.since) : new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const deduplicate = req.query.deduplicate === 'true';
 
     let query = {
       created: { $gte: since }
@@ -118,15 +119,49 @@ router.get('/historical', checkRateLimit, async (req, res) => {
       if (req.query.audience_max) query.audience.$lte = parseInt(req.query.audience_max);
     }
 
-    const [sponsorsData, totalCount] = await Promise.all([
-      sponsors.find(query)
-        .select('-__v')
-        .sort({ created: -1 })
-        .limit(limit)
-        .skip(offset)
-        .lean(),
-      sponsors.countDocuments(query)
-    ]);
+    let sponsorsData, totalCount;
+
+    if (deduplicate) {
+      // Use aggregation to get unique sponsors (deduplicated by company name)
+      const pipeline = [
+        { $match: query },
+        { $sort: { created: -1 } },
+        {
+          $group: {
+            _id: '$name',
+            doc: { $first: '$$ROOT' }
+          }
+        },
+        { $replaceRoot: { newRoot: '$doc' } },
+        { $sort: { created: -1 } },
+        {
+          $facet: {
+            data: [
+              { $skip: offset },
+              { $limit: limit }
+            ],
+            totalCount: [
+              { $count: 'count' }
+            ]
+          }
+        }
+      ];
+
+      const result = await sponsors.aggregate(pipeline);
+      sponsorsData = result[0].data;
+      totalCount = result[0].totalCount[0]?.count || 0;
+    } else {
+      // Regular query without deduplication
+      [sponsorsData, totalCount] = await Promise.all([
+        sponsors.find(query)
+          .select('-__v')
+          .sort({ created: -1 })
+          .limit(limit)
+          .skip(offset)
+          .lean(),
+        sponsors.countDocuments(query)
+      ]);
+    }
 
     const sanitizedSponsors = sponsorsData.map(sanitizeSponsorData);
 
@@ -157,6 +192,7 @@ router.get('/historical', checkRateLimit, async (req, res) => {
         hasNext: offset + limit < totalCount
       },
       filters: query,
+      deduplicated: deduplicate,
       meta: {
         requestId: require('crypto').randomBytes(16).toString('hex'),
         timestamp: new Date().toISOString(),
@@ -247,6 +283,8 @@ function sanitizeSponsorData(sponsor) {
     ad_type: sponsor.adtype,
     sponsor_of: sponsor.sponsorof,
     description: sponsor.description,
+    contact_email: sponsor.contactinfo,
+    linkedin: sponsor.linkedin,
     created: sponsor.created,
     last_seen: sponsor.sponsordate
   };

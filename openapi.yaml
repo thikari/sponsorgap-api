@@ -119,6 +119,14 @@ components:
         description:
           type: string
           example: "Leading software company specializing in developer tools"
+        contact_email:
+          type: string
+          example: "partnerships@techcorp.com"
+          description: "Contact email for sponsorship inquiries"
+        linkedin:
+          type: string
+          example: "https://linkedin.com/in/jane-doe"
+          description: "LinkedIn profile URL for primary contact"
         created:
           type: string
           format: date-time
@@ -402,6 +410,14 @@ paths:
             type: integer
             minimum: 0
             example: 100000
+        - name: deduplicate
+          in: query
+          description: Remove duplicate entries (same company appearing multiple times). When true, returns only the most recent entry for each unique company name.
+          required: false
+          schema:
+            type: boolean
+            default: false
+            example: true
       responses:
         '200':
           description: Historical sponsor data

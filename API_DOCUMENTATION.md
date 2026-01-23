@@ -22,6 +22,32 @@ X-API-Key: your_enterprise_api_key_here
 https://api.sponsorgap.com
 ```
 
+## Features
+
+### Deduplication
+
+By default, the API returns all sponsor records, which means the same company may appear multiple times if they sponsored different newsletters or the same newsletter on different dates. To get only unique companies (removing duplicates), add the `deduplicate=true` query parameter to any supported endpoint:
+
+```bash
+# Without deduplication (default) - May return same company multiple times
+GET /v1/historical?limit=10
+
+# With deduplication - Returns only unique companies
+GET /v1/historical?limit=10&deduplicate=true
+```
+
+**How it works:**
+- When `deduplicate=true`, the API groups sponsors by company name
+- Returns only the most recent entry for each unique company
+- Total count reflects unique companies, not total records
+- Available on: `/v1/historical`, `/v1/industries/:industry/sponsors`, `/v1/brands/search`, `/v1/sponsors/trending`
+
+### Contact Information
+
+All sponsor records now include contact information fields:
+- `contact_email` - Contact email for sponsorship inquiries
+- `linkedin` - LinkedIn profile URL for primary contact
+
 ## Endpoints
 
 ### Service Information
@@ -125,6 +151,7 @@ Retrieve historical sponsor data with filtering and pagination.
 | `industry` | string | - | Filter by industry field |
 | `audience_min` | integer | - | Minimum audience size |
 | `audience_max` | integer | - | Maximum audience size |
+| `deduplicate` | boolean | `false` | Remove duplicates, return unique companies only |
 
 **Example Request:**
 ```bash
@@ -148,6 +175,8 @@ curl -H "X-API-Key: your_key" \
       "ad_type": "Newsletter Sponsorship",
       "sponsor_of": "TechNewsletter Weekly",
       "description": "Leading software company...",
+      "contact_email": "partnerships@techcorp.com",
+      "linkedin": "https://linkedin.com/in/jane-doe",
       "created": "2025-12-06T19:00:00.000Z",
       "last_seen": "2025-12-06T20:00:00.000Z"
     }
@@ -158,6 +187,7 @@ curl -H "X-API-Key: your_key" \
     "offset": 0,
     "hasNext": true
   },
+  "deduplicated": false,
   "meta": {
     "requestId": "req_123456789",
     "timestamp": "2025-12-06T20:00:00.000Z",
